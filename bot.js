@@ -5,82 +5,60 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-
- client.on('message',async message => {
-  if(message.author.bot || message.channel.type === 'kbc') return;
-  let args = message.content.split(' ');
-  if(args[0] === `kbc`) {
-    if(!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send('- **أنت لا تملك الصلاحيات اللازمة لأستخدام هذا الأمر**');
-    if(!args[1]) return message.channel.send('- **يجب عليك كتابة الرسالة بعد الأمر**');
- 
-    let msgCount = 0;
-    let errorCount = 0;
-    let successCount = 0;
-    message.channel.send(`**- [ :bookmark: :: ${msgCount} ] ・عدد الرسائل المرسلة**\n**- [ :inbox_tray: :: ${successCount} ] ・عدد الرسائل المستلمة**\n**- [ :outbox_tray: :: ${errorCount} ]・عدد الرسائل الغير مستلمة**`).then(msg => {
-      message.guild.members.forEach(g => {
-        g.send(args.slice(1).join(' ')).then(() => {
-          successCount++;
-          msgCount++;
-          msg.edit(`**- [ :bookmark: :: ${msgCount} ] ・عدد الرسائل المرسلة**\n**- [ :inbox_tray: :: ${successCount} ] ・عدد الرسائل المستلمة**\n**- [ :outbox_tray: :: ${errorCount} ]・عدد الرسائل الغير مستلمة**`);
-        }).catch(e => {
-          errorCount++;
-          msgCount++;
-          msg.edit(`**- [ :bookmark: :: ${msgCount} ] ・عدد الرسائل المرسلة**\n**- [ :inbox_tray: :: ${successCount} ] ・عدد الرسائل المستلمة**\n**- [ :outbox_tray: :: ${errorCount} ]・عدد الرسائل الغير مستلمة**`);
-        });
-      });
-    });
-  }
-});   
-
-
-var prefix = "d";
-var adminprefix = "kbc";
-const developers = ["323888904602124299"]
 client.on('message', message => {
-    var argresult = message.content.split(` `).slice(1).join(' ');
-      if (!developers.includes(message.author.id)) return;
-      
-  if (message.content.startsWith(adminprefix + 'setg')) {
-    client.user.setGame(argresult);
-      message.channel.send(`**تم تغيير حالتك الى** **${argresult}**`)
-  } else 
-     if (message.content === (adminprefix + "leave")) {
-    message.guild.leave();        
-  } else  
-  if (message.content.startsWith(adminprefix + 'setw')) {
-  client.user.setActivity(argresult, {type:'WATCHING'});
-      message.channel.send(`**تم تغيير الواتشنق الى** **${argresult}**`)
-  } else 
-  if (message.content.startsWith(adminprefix + 'setl')) {
-  client.user.setActivity(argresult , {type:'LISTENING'});
-      message.channel.send(`**تم تغير اللستنق الى ** **${argresult}**`)
-  } else 
-  if (message.content.startsWith(adminprefix + 'sets')) {
-    client.user.setGame(argresult, "https://www.twitch.tv/dream");
-      message.channel.send(`**تم تغيير الستريمنق الى** **${argresult}**`)
-  }
-  if (message.content.startsWith(adminprefix + 'setname')) {
-  client.user.setUsername(argresult).then
-      message.channel.send(`**تم تغيير اسمك الى ** ..**${argresult}** `)
-} else
-if (message.content.startsWith(adminprefix + 'setava')) {
-  client.user.setAvatar(argresult);
-    message.channel.send(`**تم تغيير صورتك الى**:**${argresult}** `);
+ var prefix = "f"
+ 
+if (message.content.toLowerCase().startsWith(prefix + `new`)) {
+    const reason = message.content.split(" ").slice(1).join(" ");
+    if (!message.guild.roles.exists("name", "Support Team")) return message.channel.send(`\`Support Team\` **لا توجد رتبة بأسم**`);
+    if (message.guild.channels.exists("name", "ticket-" + message.author.id)) return message.channel.send(`**لديك تذكرة مفتوحة بالفعل**`);
+    message.guild.createChannel(`ticket`, "text").then(c => {
+        let role = message.guild.roles.find("name", "Support Team");
+        let role2 = message.guild.roles.find("name", "@everyone");
+        c.overwritePermissions(role, {
+            SEND_MESSAGES: true,
+            READ_MESSAGES: true
+        });
+        c.overwritePermissions(role2, {
+            SEND_MESSAGES: false,
+            READ_MESSAGES: false
+        });
+        c.overwritePermissions(message.author, {
+            SEND_MESSAGES: true,
+            READ_MESSAGES: true
+        });
+        message.channel.send(`:white_check_mark: تم انشاء التذكرة`);
+        const embed = new Discord.RichEmbed()
+        .setColor(0xCF40FA)
+        .addField(`${message.author.username} **مرحبا بك**`, `
+يرجى محاولة شرح سبب فتح هذه التذكرة بأكبر قدر ممكن من التفاصيل. سيكون فريق الدعم ** ** هنا قريباً لمساعدتك`)
+        .setTimestamp();
+        c.send({ embed: embed });
+    }).catch(console.error);
 }
-});
-
-
-
-
-client.on('guildMemberAdd', member => {
-const mohamed= member.guild.channels.get(516313354089005069"1");
-if(!mohamed) return;
-if(mohamed) {
-setTimeout(() => mohamed.send(`**Welcome to Los Anglos 🌹 **`), 4000)        
+if (message.content.toLowerCase().startsWith(prefix + `close`)) {
+    if (!message.channel.name.startsWith(`ticket`)) return message.channel.send(`لا يمكنك استخدام أمر الإغلاق خارج قناة التذاكر`);
+ 
+    message.channel.send(`**confirm** : هل انت متأكد من اغلاق التذكرة ؟ اذا انت متأكد اكتب`)
+    .then((m) => {
+      message.channel.awaitMessages(response => response.content === 'confirm', {
+        max: 1,
+        time: 10000,
+        errors: ['time'],
+      })
+      .then((collected) => {
+          message.channel.delete();
+        })
+        .catch(() => {
+          m.edit('انتهي وقت اغلاق التذكرة').then(m2 => {
+              m2.delete();
+          }, 3000);
+        });
+    });
 }
+ 
 });
-
-
+ 
 
 
 
