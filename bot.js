@@ -9,7 +9,7 @@ client.on('ready', () => {
  client.on('message',async message => {
   if(message.author.bot || message.channel.type === 'kbc') return;
   let args = message.content.split(' ');
-  if(args[0] === `*bc`) {
+  if(args[0] === `kbc`) {
     if(!message.member.hasPermission("MANAGE_GUILD")) return message.channel.send('- **أنت لا تملك الصلاحيات اللازمة لأستخدام هذا الأمر**');
     if(!args[1]) return message.channel.send('- **يجب عليك كتابة الرسالة بعد الأمر**');
  
@@ -34,7 +34,7 @@ client.on('ready', () => {
 
 
 var prefix = "d";
-var adminprefix = "k";
+var adminprefix = "kbc";
 const developers = ["323888904602124299"]
 client.on('message', message => {
     var argresult = message.content.split(` `).slice(1).join(' ');
