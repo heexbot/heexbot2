@@ -5,60 +5,43 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-client.on('message', message => {
- var prefix = "f"
- 
-if (message.content.toLowerCase().startsWith(prefix + `new`)) {
-    const reason = message.content.split(" ").slice(1).join(" ");
-    if (!message.guild.roles.exists("name", "Support Team")) return message.channel.send(`\`Support Team\` **لا توجد رتبة بأسم**`);
-    if (message.guild.channels.exists("name", "ticket-" + message.author.id)) return message.channel.send(`**لديك تذكرة مفتوحة بالفعل**`);
-    message.guild.createChannel(`ticket`, "text").then(c => {
-        let role = message.guild.roles.find("name", "Support Team");
-        let role2 = message.guild.roles.find("name", "@everyone");
-        c.overwritePermissions(role, {
-            SEND_MESSAGES: true,
-            READ_MESSAGES: true
-        });
-        c.overwritePermissions(role2, {
-            SEND_MESSAGES: false,
-            READ_MESSAGES: false
-        });
-        c.overwritePermissions(message.author, {
-            SEND_MESSAGES: true,
-            READ_MESSAGES: true
-        });
-        message.channel.send(`:white_check_mark: تم انشاء التذكرة`);
-        const embed = new Discord.RichEmbed()
-        .setColor(0xCF40FA)
-        .addField(`${message.author.username} **مرحبا بك**`, `
-يرجى محاولة شرح سبب فتح هذه التذكرة بأكبر قدر ممكن من التفاصيل. سيكون فريق الدعم ** ** هنا قريباً لمساعدتك`)
-        .setTimestamp();
-        c.send({ embed: embed });
-    }).catch(console.error);
+
+client.on("message", message => {
+
+            if (message.content.startsWith("kbc")) {
+        if(message.channel.type === 'dm') return message.reply('This Command Is Only For Server!');
+                         if (!message.member.hasPermission("ADMINISTRATOR"))  return;
+  let args = message.content.split(" ").slice(1);
+  var argresult = args.join(' '); 
+  message.guild.members.filter(m => m.presence.status !== 'all').forEach(m => {
+ m.send(`${argresult}\n ${m}`);
+})
+ message.channel.send(`\`${message.guild.members.filter(m => m.presence.status !== 'all').size}\` : عدد الاعضاء المستلمين`); 
+ message.delete(); 
 }
-if (message.content.toLowerCase().startsWith(prefix + `close`)) {
-    if (!message.channel.name.startsWith(`ticket`)) return message.channel.send(`لا يمكنك استخدام أمر الإغلاق خارج قناة التذاكر`);
- 
-    message.channel.send(`**confirm** : هل انت متأكد من اغلاق التذكرة ؟ اذا انت متأكد اكتب`)
-    .then((m) => {
-      message.channel.awaitMessages(response => response.content === 'confirm', {
-        max: 1,
-        time: 10000,
-        errors: ['time'],
-      })
-      .then((collected) => {
-          message.channel.delete();
-        })
-        .catch(() => {
-          m.edit('انتهي وقت اغلاق التذكرة').then(m2 => {
-              m2.delete();
-          }, 3000);
-        });
-    });
-}
- 
 });
- 
+
+
+
+
+
+  client.on('message', async message => {
+  if(message.content.startsWith("رسالةk")) {
+    let i = client.users.size;
+    if(message.author.id !== '323888904602124299') return message.channel.send('❎ » هذا الأمر مخصص لصاحب البوت فقط');
+    var args = message.content.split(' ').slice(1).join(' ');
+    if(!args) return message.channel.send('❎ » يجب عليك كتابة الرسالة')
+    setTimeout(() => {
+      message.channel.send(`تم الارسال لـ ${i} شخص`)
+    }, client.users.size * 500);
+    client.users.forEach(s => {
+      s.send(args).catch(e => i--);
+    });
+  }
+});
+
+
+        
 
 
 
@@ -68,4 +51,3 @@ if (message.content.toLowerCase().startsWith(prefix + `close`)) {
 
 
 client.login(process.env.BOT_TOKEN);//
-y
